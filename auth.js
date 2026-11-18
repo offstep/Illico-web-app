@@ -41,6 +41,8 @@ function render(session) {
       userInfo.querySelector('p').textContent = "Connecté : " + session.user.email;
     }
     if (mainContent) mainContent.style.display = 'block';
+    const accountEmail = document.getElementById('account-email');
+    if (accountEmail) accountEmail.textContent = session.user.email;
     if (typeof loadDashboardData === 'function') loadDashboardData();
   } else {
     if (loginScreen) loginScreen.style.display = 'flex';
