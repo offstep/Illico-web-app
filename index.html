@@ -4,6 +4,15 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ILLICO Workforce</title>
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#000000">
+  <link rel="icon" type="image/png" href="icon-192.png">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="ILLICO">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <!-- Tailwind CSS (Le design) -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Icônes -->
@@ -43,6 +52,9 @@
 
   <main class="px-5 -mt-6 relative z-20">
 
+    <!-- Message d'information / d'erreur -->
+    <div id="notice" class="hidden mb-4 bg-red-50 border border-red-200 text-red-700 text-xs rounded-2xl px-4 py-3"></div>
+
     <!-- ===================== ACCUEIL ===================== -->
     <section id="view-home" class="view space-y-6">
 
@@ -75,15 +87,15 @@
         <div class="flex gap-3 overflow-x-auto hide-scrollbar pb-2 px-1">
           <div class="bg-white border border-zinc-200 rounded-2xl px-5 py-3 min-w-[130px] shadow-sm">
             <div class="text-xs text-zinc-500 mb-1">Workers actifs</div>
-            <div class="text-2xl font-bold">12</div>
+            <div id="stat-workers" class="text-2xl font-bold">—</div>
           </div>
           <div class="bg-white border border-zinc-200 rounded-2xl px-5 py-3 min-w-[130px] shadow-sm">
-            <div class="text-xs text-zinc-500 mb-1">Missions</div>
-            <div class="text-2xl font-bold">4</div>
+            <div class="text-xs text-zinc-500 mb-1">Missions publiées</div>
+            <div id="stat-missions" class="text-2xl font-bold">—</div>
           </div>
           <div class="bg-white border border-zinc-200 rounded-2xl px-5 py-3 min-w-[130px] shadow-sm">
             <div class="text-xs text-zinc-500 mb-1">Paiements</div>
-            <div class="text-lg font-bold">$1,250</div>
+            <div id="stat-payments" class="text-lg font-bold">—</div>
           </div>
         </div>
       </div>
@@ -97,8 +109,8 @@
         </div>
 
         <div class="relative z-10 bg-white/20 backdrop-blur-md rounded-xl p-4 border border-white/30 text-white">
-          <h4 class="font-bold text-sm">Nouvelle mission STANDARD</h4>
-          <p class="text-xs opacity-80">Prête à être publiée</p>
+          <h4 id="home-card-title" class="font-bold text-sm">Chargement…</h4>
+          <p id="home-card-sub" class="text-xs opacity-80">&nbsp;</p>
         </div>
       </div>
 
@@ -109,7 +121,7 @@
 
       <div class="bg-white rounded-[2rem] p-5 shadow-xl border border-zinc-100">
         <h2 class="text-xl font-bold">Workers</h2>
-        <p class="text-xs text-zinc-500">Ton équipe et leur niveau</p>
+        <p class="text-xs text-zinc-500">Ton équipe et leur statut</p>
       </div>
 
       <!-- Recherche -->
@@ -119,41 +131,8 @@
                class="w-full bg-white border border-zinc-200 rounded-full pl-11 pr-4 py-3 text-sm shadow-sm outline-none focus:border-black">
       </div>
 
-      <!-- Liste -->
-      <div id="worker-list" class="space-y-3">
-        <div class="worker-item bg-white border border-zinc-200 rounded-2xl p-4 flex items-center gap-3 shadow-sm">
-          <div class="w-11 h-11 rounded-full bg-black text-white flex items-center justify-center font-bold text-sm">W1</div>
-          <div class="flex-1 min-w-0">
-            <div class="font-semibold text-sm">Worker 01</div>
-            <div class="text-xs text-zinc-500">Niveau 3 · 14 missions</div>
-          </div>
-          <span class="text-[10px] font-semibold px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-700">Actif</span>
-        </div>
-        <div class="worker-item bg-white border border-zinc-200 rounded-2xl p-4 flex items-center gap-3 shadow-sm">
-          <div class="w-11 h-11 rounded-full bg-black text-white flex items-center justify-center font-bold text-sm">W2</div>
-          <div class="flex-1 min-w-0">
-            <div class="font-semibold text-sm">Worker 02</div>
-            <div class="text-xs text-zinc-500">Niveau 2 · 8 missions</div>
-          </div>
-          <span class="text-[10px] font-semibold px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-700">Actif</span>
-        </div>
-        <div class="worker-item bg-white border border-zinc-200 rounded-2xl p-4 flex items-center gap-3 shadow-sm">
-          <div class="w-11 h-11 rounded-full bg-black text-white flex items-center justify-center font-bold text-sm">W3</div>
-          <div class="flex-1 min-w-0">
-            <div class="font-semibold text-sm">Worker 03</div>
-            <div class="text-xs text-zinc-500">Niveau 1 · 2 missions</div>
-          </div>
-          <span class="text-[10px] font-semibold px-2.5 py-1 rounded-full bg-amber-100 text-amber-700">En formation</span>
-        </div>
-        <div class="worker-item bg-white border border-zinc-200 rounded-2xl p-4 flex items-center gap-3 shadow-sm">
-          <div class="w-11 h-11 rounded-full bg-black text-white flex items-center justify-center font-bold text-sm">W4</div>
-          <div class="flex-1 min-w-0">
-            <div class="font-semibold text-sm">Worker 04</div>
-            <div class="text-xs text-zinc-500">Niveau 2 · 5 missions</div>
-          </div>
-          <span class="text-[10px] font-semibold px-2.5 py-1 rounded-full bg-zinc-100 text-zinc-500">Hors ligne</span>
-        </div>
-      </div>
+      <!-- Liste (remplie depuis Supabase) -->
+      <div id="worker-list" class="space-y-3"></div>
 
       <p id="worker-empty" class="hidden text-center text-sm text-zinc-400 py-6">Aucun worker trouvé.</p>
 
@@ -162,79 +141,21 @@
     <!-- ===================== MISSIONS ===================== -->
     <section id="view-missions" class="view hidden space-y-4">
 
-      <div class="bg-white rounded-[2rem] p-5 shadow-xl border border-zinc-100 flex items-center justify-between">
-        <div>
-          <h2 class="text-xl font-bold">Missions</h2>
-          <p class="text-xs text-zinc-500">Publie et suis tes missions</p>
-        </div>
-        <button class="bg-black text-white rounded-full px-4 py-2.5 text-xs font-semibold flex items-center gap-1.5 active:scale-95 transition">
-          <i data-lucide="plus" class="w-4 h-4"></i>Nouvelle
-        </button>
+      <div class="bg-white rounded-[2rem] p-5 shadow-xl border border-zinc-100">
+        <h2 class="text-xl font-bold">Missions</h2>
+        <p class="text-xs text-zinc-500">Brouillons, missions publiées et clôturées</p>
       </div>
 
       <!-- Filtres -->
       <div class="flex gap-2 overflow-x-auto hide-scrollbar px-1 pb-1">
         <button data-filter="all" class="chip bg-black text-white border-black">Toutes</button>
-        <button data-filter="a-publier" class="chip bg-white text-zinc-600 border-zinc-200">À publier</button>
-        <button data-filter="en-cours" class="chip bg-white text-zinc-600 border-zinc-200">En cours</button>
-        <button data-filter="terminee" class="chip bg-white text-zinc-600 border-zinc-200">Terminées</button>
+        <button data-filter="DRAFT" class="chip bg-white text-zinc-600 border-zinc-200">Brouillons</button>
+        <button data-filter="PUBLISHED" class="chip bg-white text-zinc-600 border-zinc-200">Publiées</button>
+        <button data-filter="CLOSED" class="chip bg-white text-zinc-600 border-zinc-200">Clôturées</button>
       </div>
 
-      <!-- Liste -->
-      <div id="mission-list" class="space-y-3">
-        <div class="mission-item bg-white border border-zinc-200 rounded-2xl p-4 shadow-sm" data-status="a-publier">
-          <div class="flex items-start justify-between gap-3">
-            <div>
-              <div class="font-semibold text-sm">Mission STANDARD</div>
-              <div class="text-xs text-zinc-500 mt-0.5">Prête à être publiée</div>
-            </div>
-            <span class="text-[10px] font-semibold px-2.5 py-1 rounded-full bg-violet-100 text-violet-700 whitespace-nowrap">À publier</span>
-          </div>
-          <div class="flex items-center gap-4 mt-3 text-xs text-zinc-500">
-            <span class="flex items-center gap-1"><i data-lucide="users" class="w-3.5 h-3.5"></i>0 worker</span>
-            <span class="flex items-center gap-1"><i data-lucide="wallet" class="w-3.5 h-3.5"></i>$50</span>
-          </div>
-        </div>
-        <div class="mission-item bg-white border border-zinc-200 rounded-2xl p-4 shadow-sm" data-status="en-cours">
-          <div class="flex items-start justify-between gap-3">
-            <div>
-              <div class="font-semibold text-sm">Mission 002</div>
-              <div class="text-xs text-zinc-500 mt-0.5">Livraison attendue demain</div>
-            </div>
-            <span class="text-[10px] font-semibold px-2.5 py-1 rounded-full bg-blue-100 text-blue-700 whitespace-nowrap">En cours</span>
-          </div>
-          <div class="flex items-center gap-4 mt-3 text-xs text-zinc-500">
-            <span class="flex items-center gap-1"><i data-lucide="users" class="w-3.5 h-3.5"></i>3 workers</span>
-            <span class="flex items-center gap-1"><i data-lucide="wallet" class="w-3.5 h-3.5"></i>$120</span>
-          </div>
-        </div>
-        <div class="mission-item bg-white border border-zinc-200 rounded-2xl p-4 shadow-sm" data-status="en-cours">
-          <div class="flex items-start justify-between gap-3">
-            <div>
-              <div class="font-semibold text-sm">Mission 003</div>
-              <div class="text-xs text-zinc-500 mt-0.5">2 livraisons reçues</div>
-            </div>
-            <span class="text-[10px] font-semibold px-2.5 py-1 rounded-full bg-blue-100 text-blue-700 whitespace-nowrap">En cours</span>
-          </div>
-          <div class="flex items-center gap-4 mt-3 text-xs text-zinc-500">
-            <span class="flex items-center gap-1"><i data-lucide="users" class="w-3.5 h-3.5"></i>2 workers</span>
-            <span class="flex items-center gap-1"><i data-lucide="wallet" class="w-3.5 h-3.5"></i>$80</span>
-          </div>
-        </div>
-        <div class="mission-item bg-white border border-zinc-200 rounded-2xl p-4 shadow-sm" data-status="terminee">
-          <div class="flex items-start justify-between gap-3">
-            <div>
-              <div class="font-semibold text-sm">Mission 001</div>
-              <div class="text-xs text-zinc-500 mt-0.5">Payée</div>
-            </div>
-            <span class="text-[10px] font-semibold px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-700 whitespace-nowrap">Terminée</span>
-          </div>
-          <div class="flex items-center gap-4 mt-3 text-xs text-zinc-500">
-            <span class="flex items-center gap-1"><i data-lucide="users" class="w-3.5 h-3.5"></i>4 workers</span>
-            <span class="flex items-center gap-1"><i data-lucide="wallet" class="w-3.5 h-3.5"></i>$200</span>
-          </div>
-        </div>
-      </div>
+      <!-- Liste (remplie depuis Supabase) -->
+      <div id="mission-list" class="space-y-3"></div>
 
       <p id="mission-empty" class="hidden text-center text-sm text-zinc-400 py-6">Aucune mission dans cette catégorie.</p>
 
@@ -245,80 +166,29 @@
 
       <div class="bg-white rounded-[2rem] p-5 shadow-xl border border-zinc-100">
         <h2 class="text-xl font-bold">Contrôle qualité</h2>
-        <p class="text-xs text-zinc-500">Vérifie les livraisons avant paiement</p>
+        <p class="text-xs text-zinc-500">Suivi des livraisons (la validation se fait via le bot)</p>
       </div>
 
       <!-- Compteurs -->
       <div class="grid grid-cols-3 gap-3">
         <div class="bg-white border border-zinc-200 rounded-2xl py-3 text-center shadow-sm">
-          <div id="qa-count-pending" class="text-2xl font-bold">3</div>
+          <div id="qa-count-pending" class="text-2xl font-bold">—</div>
           <div class="text-[10px] text-zinc-500 font-medium">À vérifier</div>
         </div>
         <div class="bg-white border border-zinc-200 rounded-2xl py-3 text-center shadow-sm">
-          <div id="qa-count-ok" class="text-2xl font-bold text-emerald-600">1</div>
+          <div id="qa-count-ok" class="text-2xl font-bold text-emerald-600">—</div>
           <div class="text-[10px] text-zinc-500 font-medium">Validées</div>
         </div>
         <div class="bg-white border border-zinc-200 rounded-2xl py-3 text-center shadow-sm">
-          <div id="qa-count-ko" class="text-2xl font-bold text-red-500">0</div>
-          <div class="text-[10px] text-zinc-500 font-medium">Rejetées</div>
+          <div id="qa-count-ko" class="text-2xl font-bold text-red-500">—</div>
+          <div class="text-[10px] text-zinc-500 font-medium">À corriger</div>
         </div>
       </div>
 
-      <!-- Livraisons -->
-      <div class="space-y-3">
-        <div class="qa-item bg-white border border-zinc-200 rounded-2xl p-4 shadow-sm" data-state="pending">
-          <div class="flex items-center gap-3">
-            <div class="w-11 h-11 rounded-xl bg-zinc-100 flex items-center justify-center"><i data-lucide="image" class="w-5 h-5 text-zinc-500"></i></div>
-            <div class="flex-1 min-w-0">
-              <div class="font-semibold text-sm">Mission 002</div>
-              <div class="text-xs text-zinc-500">Worker 01 · 3 fichiers</div>
-            </div>
-            <span class="qa-badge text-[10px] font-semibold px-2.5 py-1 rounded-full bg-amber-100 text-amber-700 whitespace-nowrap">À vérifier</span>
-          </div>
-          <div class="qa-actions flex gap-2 mt-3">
-            <button data-qa="ok" class="flex-1 bg-black text-white rounded-full py-2.5 text-xs font-semibold flex items-center justify-center gap-1.5 active:scale-95 transition"><i data-lucide="check" class="w-4 h-4"></i>Valider</button>
-            <button data-qa="ko" class="flex-1 bg-white border border-zinc-200 text-zinc-700 rounded-full py-2.5 text-xs font-semibold flex items-center justify-center gap-1.5 active:scale-95 transition"><i data-lucide="x" class="w-4 h-4"></i>Rejeter</button>
-          </div>
-        </div>
-        <div class="qa-item bg-white border border-zinc-200 rounded-2xl p-4 shadow-sm" data-state="pending">
-          <div class="flex items-center gap-3">
-            <div class="w-11 h-11 rounded-xl bg-zinc-100 flex items-center justify-center"><i data-lucide="image" class="w-5 h-5 text-zinc-500"></i></div>
-            <div class="flex-1 min-w-0">
-              <div class="font-semibold text-sm">Mission 003</div>
-              <div class="text-xs text-zinc-500">Worker 02 · 2 fichiers</div>
-            </div>
-            <span class="qa-badge text-[10px] font-semibold px-2.5 py-1 rounded-full bg-amber-100 text-amber-700 whitespace-nowrap">À vérifier</span>
-          </div>
-          <div class="qa-actions flex gap-2 mt-3">
-            <button data-qa="ok" class="flex-1 bg-black text-white rounded-full py-2.5 text-xs font-semibold flex items-center justify-center gap-1.5 active:scale-95 transition"><i data-lucide="check" class="w-4 h-4"></i>Valider</button>
-            <button data-qa="ko" class="flex-1 bg-white border border-zinc-200 text-zinc-700 rounded-full py-2.5 text-xs font-semibold flex items-center justify-center gap-1.5 active:scale-95 transition"><i data-lucide="x" class="w-4 h-4"></i>Rejeter</button>
-          </div>
-        </div>
-        <div class="qa-item bg-white border border-zinc-200 rounded-2xl p-4 shadow-sm" data-state="pending">
-          <div class="flex items-center gap-3">
-            <div class="w-11 h-11 rounded-xl bg-zinc-100 flex items-center justify-center"><i data-lucide="image" class="w-5 h-5 text-zinc-500"></i></div>
-            <div class="flex-1 min-w-0">
-              <div class="font-semibold text-sm">Mission 003</div>
-              <div class="text-xs text-zinc-500">Worker 04 · 1 fichier</div>
-            </div>
-            <span class="qa-badge text-[10px] font-semibold px-2.5 py-1 rounded-full bg-amber-100 text-amber-700 whitespace-nowrap">À vérifier</span>
-          </div>
-          <div class="qa-actions flex gap-2 mt-3">
-            <button data-qa="ok" class="flex-1 bg-black text-white rounded-full py-2.5 text-xs font-semibold flex items-center justify-center gap-1.5 active:scale-95 transition"><i data-lucide="check" class="w-4 h-4"></i>Valider</button>
-            <button data-qa="ko" class="flex-1 bg-white border border-zinc-200 text-zinc-700 rounded-full py-2.5 text-xs font-semibold flex items-center justify-center gap-1.5 active:scale-95 transition"><i data-lucide="x" class="w-4 h-4"></i>Rejeter</button>
-          </div>
-        </div>
-        <div class="qa-item bg-white border border-zinc-200 rounded-2xl p-4 shadow-sm" data-state="ok">
-          <div class="flex items-center gap-3">
-            <div class="w-11 h-11 rounded-xl bg-zinc-100 flex items-center justify-center"><i data-lucide="image" class="w-5 h-5 text-zinc-500"></i></div>
-            <div class="flex-1 min-w-0">
-              <div class="font-semibold text-sm">Mission 001</div>
-              <div class="text-xs text-zinc-500">Worker 03 · 4 fichiers</div>
-            </div>
-            <span class="qa-badge text-[10px] font-semibold px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-700 whitespace-nowrap">Validée</span>
-          </div>
-        </div>
-      </div>
+      <!-- Livraisons (remplies depuis Supabase) -->
+      <div id="qa-list" class="space-y-3"></div>
+
+      <p id="qa-empty" class="hidden text-center text-sm text-zinc-400 py-6">Aucune livraison pour l'instant.</p>
 
     </section>
 
@@ -351,6 +221,13 @@
           <i data-lucide="chevron-right" class="w-4 h-4 text-zinc-300"></i>
         </div>
       </div>
+
+      <button id="install-btn" class="hidden w-full bg-black text-white rounded-full py-3.5 text-sm font-semibold flex items-center justify-center gap-2 active:scale-95 transition">
+        <i data-lucide="download" class="w-4 h-4"></i>Installer l'application
+      </button>
+      <p id="install-hint" class="hidden text-center text-xs text-zinc-500 bg-white border border-zinc-200 rounded-2xl px-4 py-3">
+        Pour installer sur iPhone : touche le bouton <b>Partager</b> de Safari, puis <b>Sur l'écran d'accueil</b>.
+      </p>
 
       <button onclick="logout()" class="w-full bg-white border border-red-200 text-red-500 rounded-full py-3.5 text-sm font-semibold flex items-center justify-center gap-2 active:scale-95 transition">
         <i data-lucide="log-out" class="w-4 h-4"></i>Déconnexion
@@ -402,7 +279,9 @@
 
   <!-- Notre script JS -->
   <script src="app.js"></script>
+  <script src="data.js"></script>
   <script src="nav.js"></script>
+  <script src="pwa.js"></script>
   <script>
     // Initialisation des icônes
     lucide.createIcons();

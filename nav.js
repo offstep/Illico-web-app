@@ -32,7 +32,9 @@ if (workerSearch) {
       item.classList.toggle('hidden', !match);
       if (match) visible++;
     });
-    document.getElementById('worker-empty').classList.toggle('hidden', visible > 0);
+    const empty = document.getElementById('worker-empty');
+    empty.textContent = 'Aucun worker trouvé.';
+    empty.classList.toggle('hidden', visible > 0);
   });
 }
 
@@ -56,30 +58,10 @@ chips.forEach(chip => {
       m.classList.toggle('hidden', !show);
       if (show) visible++;
     });
-    document.getElementById('mission-empty').classList.toggle('hidden', visible > 0);
+    const empty = document.getElementById('mission-empty');
+    empty.textContent = document.querySelectorAll('.mission-item').length === 0
+      ? "Aucune mission pour l'instant."
+      : 'Aucune mission dans cette catégorie.';
+    empty.classList.toggle('hidden', visible > 0);
   });
-});
-
-// ---------- QA : valider / rejeter ----------
-function updateQaCounters() {
-  const count = s => document.querySelectorAll('.qa-item[data-state="' + s + '"]').length;
-  document.getElementById('qa-count-pending').textContent = count('pending');
-  document.getElementById('qa-count-ok').textContent = count('ok');
-  document.getElementById('qa-count-ko').textContent = count('ko');
-}
-
-document.addEventListener('click', e => {
-  const btn = e.target.closest('[data-qa]');
-  if (!btn) return;
-  const item = btn.closest('.qa-item');
-  const ok = btn.dataset.qa === 'ok';
-  item.dataset.state = ok ? 'ok' : 'ko';
-
-  const badge = item.querySelector('.qa-badge');
-  badge.textContent = ok ? 'Validée' : 'Rejetée';
-  badge.className = 'qa-badge text-[10px] font-semibold px-2.5 py-1 rounded-full whitespace-nowrap ' +
-    (ok ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-600');
-
-  item.querySelector('.qa-actions').remove();
-  updateQaCounters();
 });
