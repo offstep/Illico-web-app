@@ -4,6 +4,28 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ILLICO Workforce</title>
+  <!-- Affiche à l'écran les erreurs de chargement (utile sur téléphone, sans console) -->
+  <script>
+    (function () {
+      function show(msg) {
+        var n = document.getElementById('notice');
+        if (!n) return;
+        n.textContent = msg;
+        n.classList.remove('hidden');
+      }
+      window.addEventListener('error', function (e) {
+        var t = e.target;
+        if (t && t.tagName === 'SCRIPT') return show('Fichier introuvable : ' + (t.getAttribute('src') || '?'));
+        if (!e.message || e.message === 'Script error.' || e.message.indexOf('ResizeObserver') !== -1) return;
+        show('Erreur : ' + e.message + (e.filename ? ' (' + e.filename.split('/').pop() + ':' + e.lineno + ')' : ''));
+      }, true);
+      window.addEventListener('unhandledrejection', function (e) {
+        var r = e.reason;
+        show('Erreur : ' + ((r && r.message) || r));
+      });
+    })();
+  </script>
+
   <!-- PWA -->
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#000000">
@@ -236,7 +258,7 @@
         <i data-lucide="log-out" class="w-4 h-4"></i>Déconnexion
       </button>
 
-      <p class="text-center text-[10px] text-zinc-400">ILLICO Workforce · version bêta</p>
+      <p id="app-version" class="text-center text-[10px] text-zinc-400">ILLICO Workforce · version bêta</p>
 
     </section>
 

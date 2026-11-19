@@ -1,6 +1,6 @@
 // Service worker ILLICO
 // Changer ce numéro force la mise à jour du cache chez tous les utilisateurs.
-const CACHE = 'illico-v3';
+const CACHE = 'illico-v4';
 
 // Fichiers de l'app (même dossier que ce fichier)
 const SHELL = [
@@ -63,7 +63,8 @@ self.addEventListener('fetch', event => {
   // Fichiers de l'app : réseau d'abord (toujours à jour), cache si hors-ligne
   if (url.origin === self.location.origin) {
     event.respondWith(
-      fetch(req)
+      // no-cache : on ignore le cache HTTP de GitHub Pages (10 min) pour ne jamais mélanger d'anciens et de nouveaux fichiers
+      fetch(req, { cache: 'no-cache' })
         .then(res => {
           if (res && res.ok) {
             const copy = res.clone();

@@ -43,7 +43,15 @@ function render(session) {
     if (mainContent) mainContent.style.display = 'block';
     const accountEmail = document.getElementById('account-email');
     if (accountEmail) accountEmail.textContent = session.user.email;
-    if (typeof loadDashboardData === 'function') loadDashboardData();
+    const warn = msg => {
+      const n = document.getElementById('notice');
+      if (n) { n.textContent = msg; n.classList.remove('hidden'); }
+    };
+    if (typeof loadDashboardData === 'function') {
+      Promise.resolve(loadDashboardData()).catch(err => warn('Chargement impossible : ' + ((err && err.message) || err)));
+    } else {
+      warn("Le fichier data.js n'est pas chargé : vérifie qu'il est à la racine du site.");
+    }
   } else {
     if (loginScreen) loginScreen.style.display = 'flex';
     if (loginBtn) loginBtn.classList.remove('invisible');

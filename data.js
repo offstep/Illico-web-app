@@ -6,6 +6,9 @@
 const REFRESH_MS = 30000;          // rafraîchissement automatique
 const PENDING_STATES = ['SUBMITTED', 'IN_REVIEW'];
 
+// Doit rester tout en haut : lu par auth.js et missions.js même si la suite du fichier échoue
+let lastLoad = 0;
+
 const WORKER_STATUS = {
   NEW:          ['Nouveau',         'bg-zinc-100 text-zinc-600'],
   TRAINING:     ['En formation',    'bg-amber-100 text-amber-700'],
@@ -135,7 +138,8 @@ async function loadMissions() {
     meta.appendChild(r);
     card.appendChild(meta);
 
-    const actions = missionActions(m);   // « Publier » / « Clôturer » (missions.js)
+    // « Publier » / « Clôturer » (missions.js) : absent = pas de bouton, mais pas d'erreur
+    const actions = typeof missionActions === 'function' ? missionActions(m) : null;
     if (actions) card.appendChild(actions);
 
     list.appendChild(card);
@@ -305,15 +309,14 @@ async function openDelivery(id) {
   }
 }
 
-document.getElementById('detail-close').addEventListener('click', closeDetail);
-document.getElementById('detail-overlay').addEventListener('click', e => {
-  if (e.target.id === 'detail-overlay') closeDetail();   // clic sur le fond
-});
+// Branchements (tolérants : un élément manquant ne doit pas bloquer tout le fichier)
+const detailClose = document.getElementById('detail-close');
+const detailOverlay = document.getElementById('detail-overlay');
+if (detailClose) detailClose.addEventListener('click', closeDetail);
+if (detailOverlay) detailOverlay.addEventListener('click', e => { if (e.target === detailOverlay) closeDetail(); });
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDetail(); });
 
 // ----- Point d'entrée (appelé par auth.js) -----
-let lastLoad = 0;
-
 async function loadDashboardData() {
   // auth.js peut l'appeler plusieurs fois de suite : on évite les doublons
   if (Date.now() - lastLoad < 3000) return;
