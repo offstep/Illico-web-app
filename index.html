@@ -38,15 +38,12 @@
   <!-- Header Noir (Style Offstep) -->
   <header class="bg-black text-white px-6 pt-12 pb-8 rounded-b-[2.5rem] shadow-lg relative overflow-hidden">
     <div class="flex justify-between items-center mb-6">
-      <div class="relative">
+      <button id="bell-btn" type="button" aria-label="Notifications" class="relative">
         <i data-lucide="bell" class="w-6 h-6"></i>
-        <span class="absolute -top-1 -right-1 bg-white text-black text-[10px] font-bold px-1.5 rounded-full">3</span>
-      </div>
+        <span id="bell-badge" class="hidden absolute -top-1 -right-1 bg-white text-black text-[10px] font-bold px-1.5 rounded-full">0</span>
+      </button>
       <h1 class="text-2xl font-black italic tracking-tighter">ILLICO</h1>
-      <div class="flex gap-4">
-        <i data-lucide="search" class="w-6 h-6"></i>
-        <i data-lucide="shopping-bag" class="w-6 h-6"></i>
-      </div>
+      <div class="w-6" aria-hidden="true"></div>
     </div>
   </header>
 
@@ -141,9 +138,14 @@
     <!-- ===================== MISSIONS ===================== -->
     <section id="view-missions" class="view hidden space-y-4">
 
-      <div class="bg-white rounded-[2rem] p-5 shadow-xl border border-zinc-100">
-        <h2 class="text-xl font-bold">Missions</h2>
-        <p class="text-xs text-zinc-500">Brouillons, missions publiées et clôturées</p>
+      <div class="bg-white rounded-[2rem] p-5 shadow-xl border border-zinc-100 flex items-center justify-between gap-3">
+        <div class="min-w-0">
+          <h2 class="text-xl font-bold">Missions</h2>
+          <p class="text-xs text-zinc-500">Brouillons, missions publiées et clôturées</p>
+        </div>
+        <button id="new-mission-btn" type="button" class="shrink-0 bg-black text-white rounded-full px-4 py-2.5 text-xs font-semibold flex items-center gap-1.5 active:scale-95 transition">
+          <i data-lucide="plus" class="w-4 h-4"></i>Nouvelle
+        </button>
       </div>
 
       <!-- Filtres -->
@@ -166,7 +168,7 @@
 
       <div class="bg-white rounded-[2rem] p-5 shadow-xl border border-zinc-100">
         <h2 class="text-xl font-bold">Contrôle qualité</h2>
-        <p class="text-xs text-zinc-500">Suivi des livraisons (la validation se fait via le bot)</p>
+        <p class="text-xs text-zinc-500">Touche une livraison pour voir son contenu (la validation se fait via le bot)</p>
       </div>
 
       <!-- Compteurs -->
@@ -204,11 +206,12 @@
       </div>
 
       <div class="bg-white border border-zinc-200 rounded-2xl shadow-sm divide-y divide-zinc-100">
-        <div class="flex items-center gap-3 px-4 py-4">
+        <button id="notif-row" type="button" class="w-full flex items-center gap-3 px-4 py-4 text-left">
           <i data-lucide="bell" class="w-5 h-5 text-zinc-500"></i>
           <span class="flex-1 text-sm font-medium">Notifications</span>
+          <span id="notif-state" class="text-xs text-zinc-400">—</span>
           <i data-lucide="chevron-right" class="w-4 h-4 text-zinc-300"></i>
-        </div>
+        </button>
         <div class="flex items-center gap-3 px-4 py-4">
           <i data-lucide="globe" class="w-5 h-5 text-zinc-500"></i>
           <span class="flex-1 text-sm font-medium">Langue</span>
@@ -270,6 +273,90 @@
     </ul>
   </nav>
 
+  <!-- Détail d'une livraison (écran QA) -->
+  <div id="detail-overlay" class="hidden fixed inset-0 z-[90] bg-black/50 flex items-end justify-center" role="dialog" aria-modal="true" aria-labelledby="detail-title">
+    <div class="bg-white w-full max-w-lg rounded-t-[2rem] max-h-[85vh] overflow-y-auto p-6 pb-10">
+      <div class="flex items-start justify-between gap-3 mb-4">
+        <div class="min-w-0">
+          <h3 id="detail-title" class="text-lg font-bold truncate"></h3>
+          <p id="detail-sub" class="text-xs text-zinc-500"></p>
+        </div>
+        <button id="detail-close" type="button" aria-label="Fermer" class="shrink-0 w-9 h-9 rounded-full bg-zinc-100 flex items-center justify-center">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      <div id="detail-body" class="space-y-4"></div>
+    </div>
+  </div>
+
+  <!-- Nouvelle mission -->
+  <div id="mission-overlay" class="hidden fixed inset-0 z-[90] bg-black/50 flex items-end justify-center" role="dialog" aria-modal="true" aria-labelledby="mission-form-title">
+    <form id="mission-form" class="bg-white w-full max-w-lg rounded-t-[2rem] max-h-[90vh] overflow-y-auto p-6 pb-10 space-y-4" novalidate>
+      <div class="flex items-center justify-between gap-3">
+        <h3 id="mission-form-title" class="text-lg font-bold">Nouvelle mission</h3>
+        <button id="mission-close" type="button" aria-label="Fermer" class="shrink-0 w-9 h-9 rounded-full bg-zinc-100 flex items-center justify-center">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <label class="block">
+        <span class="field-label">Titre</span>
+        <input id="mf-title" type="text" maxlength="80" class="field" placeholder="Ex : Tri de photos produit">
+      </label>
+
+      <label class="block">
+        <span class="field-label">Description courte</span>
+        <textarea id="mf-description" rows="2" maxlength="500" class="field"></textarea>
+      </label>
+
+      <label class="block">
+        <span class="field-label">Instructions pour le worker</span>
+        <textarea id="mf-instructions" rows="5" maxlength="3500" class="field"></textarea>
+      </label>
+
+      <div class="grid grid-cols-2 gap-3">
+        <label class="block">
+          <span class="field-label">Récompense ($)</span>
+          <input id="mf-reward" type="number" inputmode="numeric" min="1" step="1" class="field" placeholder="25">
+        </label>
+        <label class="block">
+          <span class="field-label">Nombre de tâches</span>
+          <input id="mf-tasks" type="number" inputmode="numeric" min="1" step="1" class="field" placeholder="10">
+        </label>
+        <label class="block">
+          <span class="field-label">Difficulté</span>
+          <select id="mf-difficulty" class="field">
+            <option>Facile</option>
+            <option>Moyen</option>
+            <option>Difficile</option>
+          </select>
+        </label>
+        <label class="block">
+          <span class="field-label">Places max (option)</span>
+          <input id="mf-max" type="number" inputmode="numeric" min="1" step="1" class="field">
+        </label>
+      </div>
+
+      <label class="block">
+        <span class="field-label">Délai en heures après la prise (option)</span>
+        <input id="mf-deadline" type="number" inputmode="numeric" min="1" step="1" class="field" placeholder="24">
+      </label>
+
+      <label class="block">
+        <span class="field-label">Données à traiter, un élément par ligne (option)</span>
+        <textarea id="mf-items" rows="4" class="field"></textarea>
+      </label>
+
+      <p class="text-[11px] text-zinc-400">Livraison en texte uniquement : l'envoi de fichiers n'est pas encore actif dans le bot.</p>
+      <p id="mf-error" class="hidden text-xs text-red-600 bg-red-50 border border-red-200 rounded-xl px-3 py-2"></p>
+
+      <div class="flex gap-2">
+        <button id="mf-draft" type="button" class="flex-1 bg-white border border-zinc-200 text-zinc-800 rounded-full py-3 text-sm font-semibold active:scale-95 transition">Brouillon</button>
+        <button id="mf-publish" type="button" class="flex-1 bg-black text-white rounded-full py-3 text-sm font-semibold active:scale-95 transition">Publier</button>
+      </div>
+    </form>
+  </div>
+
   </div><!-- fin main-content -->
 
   <!-- Supabase (librairie puis connexion) -->
@@ -279,6 +366,9 @@
 
   <!-- Notre script JS -->
   <script src="app.js"></script>
+  <script src="utils.js"></script>
+  <script src="notify.js"></script>
+  <script src="missions.js"></script>
   <script src="data.js"></script>
   <script src="nav.js"></script>
   <script src="pwa.js"></script>

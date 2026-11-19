@@ -1,6 +1,6 @@
 // Service worker ILLICO
 // Changer ce numéro force la mise à jour du cache chez tous les utilisateurs.
-const CACHE = 'illico-v1';
+const CACHE = 'illico-v3';
 
 // Fichiers de l'app (même dossier que ce fichier)
 const SHELL = [
@@ -10,6 +10,9 @@ const SHELL = [
   'app.js',
   'supabase.js',
   'auth.js',
+  'utils.js',
+  'notify.js',
+  'missions.js',
   'data.js',
   'nav.js',
   'pwa.js',
@@ -34,6 +37,17 @@ self.addEventListener('activate', event => {
     caches.keys()
       .then(keys => Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k))))
       .then(() => self.clients.claim())
+  );
+});
+
+// Toucher une notification ramène sur l'app
+self.addEventListener('notificationclick', event => {
+  event.notification.close();
+  event.waitUntil(
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(list => {
+      for (const c of list) if ('focus' in c) return c.focus();
+      return self.clients.openWindow('./');
+    })
   );
 });
 
