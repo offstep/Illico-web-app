@@ -39,19 +39,22 @@ async function countRows(table, apply) {
 }
 
 // ----- Accueil -----
-async function loadStats() {
-  const [workers, published, drafts, paid] = await Promise.all([
+// Paiements : isolés, pour qu'une table absente ne bloque pas le reste de l'accueil
+async function loadPayments() {
+  const { data, error } = await window.sb.from('Payment').select('amount').eq('status', 'PAID');
+  if (error) throw error;
+  const total = (data || []).reduce((s, p) => s + (p.amount || 0), 0);
+  document.getElementById('stat-payments').textContent = usd(total);
+}
+
+async function loadCounts() {
+  const [workers, published, drafts] = await Promise.all([
     countRows('WorkerProfile', q => q.in('status', ['TRIAL', 'VERIFIED'])),
     countRows('Mission', q => q.eq('status', 'PUBLISHED')),
-    countRows('Mission', q => q.eq('status', 'DRAFT')),
-    window.sb.from('Payment').select('amount').eq('status', 'PAID')
+    countRows('Mission', q => q.eq('status', 'DRAFT'))
   ]);
-  if (paid.error) throw paid.error;
-
-  const total = (paid.data || []).reduce((s, p) => s + (p.amount || 0), 0);
   document.getElementById('stat-workers').textContent = workers;
   document.getElementById('stat-missions').textContent = published;
-  document.getElementById('stat-payments').textContent = usd(total);
 
   document.getElementById('home-card-title').textContent =
     drafts > 0 ? plural(drafts, 'mission en brouillon', 'missions en brouillon') : 'Aucune mission en brouillon';
@@ -323,9 +326,21 @@ async function loadDashboardData() {
       showNotice("Accès refusé : ton email Google n'est pas dans la liste des admins.");
       return;
     }
-    hideNotice();
-
-    await Promise.all([loadStats(), loadWorkers(), loadMissions(), loadDeliveries()]);
+    // Chaque section se charge seule : une erreur n'empêche pas les autres de s'afficher
+    const sections = [
+      ['Accueil', loadCounts], ['Paiements', loadPayments], ['Workers', loadWorkers],
+      ['Missions', loadMissions], ['QA', loadDeliveries]
+    ];
+    const results = await Promise.allSettled(sections.map(([, load]) => load()));
+    const failed = [];
+    results.forEach((r, k) => {
+      if (r.status === 'rejected') {
+        console.error('Section ' + sections[k][0] + ' :', r.reason);
+        failed.push(sections[k][0] + ' : ' + ((r.reason && r.reason.message) || r.reason));
+      }
+    });
+    if (failed.length) showNotice('Chargement incomplet — ' + failed.join(' · '));
+    else hideNotice();
     lucide.createIcons();
   } catch (e) {
     console.error('Erreur de chargement :', e);
