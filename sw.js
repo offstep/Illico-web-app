@@ -1,6 +1,6 @@
 // Service worker ILLICO
 // Changer ce numéro force la mise à jour du cache chez tous les utilisateurs.
-const CACHE = 'illico-v4';
+const CACHE = 'illico-v5';
 
 // Fichiers de l'app (même dossier que ce fichier)
 const SHELL = [
@@ -13,6 +13,9 @@ const SHELL = [
   'utils.js',
   'notify.js',
   'missions.js',
+  'sheet.js',
+  'review.js',
+  'wallet.js',
   'data.js',
   'nav.js',
   'pwa.js',

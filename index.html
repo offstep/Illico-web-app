@@ -113,8 +113,12 @@
             <div id="stat-missions" class="text-2xl font-bold">—</div>
           </div>
           <div class="bg-white border border-zinc-200 rounded-2xl px-5 py-3 min-w-[130px] shadow-sm">
-            <div class="text-xs text-zinc-500 mb-1">Paiements</div>
+            <div class="text-xs text-zinc-500 mb-1">Déjà payé</div>
             <div id="stat-payments" class="text-lg font-bold">—</div>
+          </div>
+          <div class="bg-white border border-zinc-200 rounded-2xl px-5 py-3 min-w-[130px] shadow-sm">
+            <div class="text-xs text-zinc-500 mb-1">À payer</div>
+            <div id="stat-due" class="text-lg font-bold">—</div>
           </div>
         </div>
       </div>
@@ -140,7 +144,7 @@
 
       <div class="bg-white rounded-[2rem] p-5 shadow-xl border border-zinc-100">
         <h2 class="text-xl font-bold">Workers</h2>
-        <p class="text-xs text-zinc-500">Ton équipe et leur statut</p>
+        <p class="text-xs text-zinc-500">Touche un worker pour voir son portefeuille</p>
       </div>
 
       <!-- Recherche -->
@@ -190,7 +194,7 @@
 
       <div class="bg-white rounded-[2rem] p-5 shadow-xl border border-zinc-100">
         <h2 class="text-xl font-bold">Contrôle qualité</h2>
-        <p class="text-xs text-zinc-500">Touche une livraison pour voir son contenu (la validation se fait via le bot)</p>
+        <p class="text-xs text-zinc-500">Touche une livraison pour la consulter et l'évaluer</p>
       </div>
 
       <!-- Compteurs -->
@@ -391,6 +395,9 @@
   <script src="utils.js"></script>
   <script src="notify.js"></script>
   <script src="missions.js"></script>
+  <script src="sheet.js"></script>
+  <script src="review.js"></script>
+  <script src="wallet.js"></script>
   <script src="data.js"></script>
   <script src="nav.js"></script>
   <script src="pwa.js"></script>

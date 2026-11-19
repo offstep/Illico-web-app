@@ -3,7 +3,7 @@
 // Tout le texte venant de la base passe par textContent : aucun HTML n'est injecté.
 
 // Numéro de version affiché dans Compte : sert à vérifier que les fichiers sont à jour
-const APP_VERSION = 'v4';
+const APP_VERSION = 'v5';
 {
   const v = document.getElementById('app-version');
   if (v) v.textContent = 'ILLICO Workforce · version bêta · ' + APP_VERSION;
