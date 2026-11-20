@@ -15,7 +15,7 @@ const PAYMENT_STATUS = {
 const sumPayments = (rows, status) =>
   (rows || []).filter(p => p.status === status).reduce((t, p) => t + (p.amount || 0), 0);
 
-async function openWallet(userId, name) {
+async function openWallet(userId, name, profile) {
   const body = openSheet('Portefeuille', name);
   body.appendChild(el('p', 'text-sm text-zinc-400', 'Chargement…'));
 
@@ -27,14 +27,33 @@ async function openWallet(userId, name) {
       .order('createdAt', { ascending: false })
       .limit(200);
     if (error) throw error;
-    renderWallet(body, userId, name, data || []);
+    renderWallet(body, userId, name, data || [], profile);
   } catch (e) {
     console.error('Portefeuille :', e);
     body.replaceChildren(el('p', 'text-sm text-red-600', 'Impossible de charger : ' + ((e && e.message) || e)));
   }
 }
 
-function renderWallet(body, userId, name, rows) {
+function profileCard(w) {
+  const rows = [
+    ['Niveau', w.level && (LEVEL_LABEL[w.level] || w.level)],
+    ['Langues', w.languages && w.languages.length && w.languages.map(l => LANG_LABEL[l] || l).join(', ')],
+    ['Disponibilité', w.hoursPerDay && w.hoursPerDay + ' h par jour'],
+    ['Pays', w.country],
+    ['Fuseau', Number.isFinite(w.utcOffsetMin) && 'UTC' + (w.utcOffsetMin >= 0 ? '+' : '−') + Math.abs(w.utcOffsetMin / 60)]
+  ].filter(([, v]) => v);
+  const box = el('div', 'card px-4 divide-y divide-zinc-100');
+  if (!rows.length) return sheetSection('Profil', el('p', 'text-sm text-zinc-400', 'Pas encore renseigné par le worker.'));
+  rows.forEach(([k, v]) => {
+    const r = el('div', 'flex justify-between gap-3 py-2.5 text-sm');
+    r.appendChild(el('span', 'text-zinc-500', k));
+    r.appendChild(el('span', 'font-semibold text-right', v));
+    box.appendChild(r);
+  });
+  return sheetSection('Profil déclaré', box);
+}
+
+function renderWallet(body, userId, name, rows, profile) {
   body.replaceChildren();
 
   const due = sumPayments(rows, 'PENDING');
@@ -54,7 +73,7 @@ function renderWallet(body, userId, name, rows) {
   if (pending.length) {
     const btn = el('button', 'w-full btn btn-primary btn-block', 'Marquer ' + usd(due) + ' comme payé');
     btn.type = 'button';
-    btn.addEventListener('click', () => settleWallet(userId, name, pending, btn));
+    btn.addEventListener('click', () => settleWallet(userId, name, pending, btn, profile));
     body.appendChild(btn);
     body.appendChild(el('p', 'text-[11px] text-zinc-400', "Fais d'abord le virement (Mobile Money, etc.) : ce bouton enregistre seulement qu'il est fait."));
   }
@@ -71,10 +90,11 @@ function renderWallet(body, userId, name, rows) {
     line.appendChild(badge(PAYMENT_STATUS, p.status));
     list.appendChild(line);
   });
+  if (profile) body.appendChild(profileCard(profile));
   body.appendChild(sheetSection('Historique', rows.length ? list : el('p', 'text-sm text-zinc-400', 'Aucun gain pour le moment.')));
 }
 
-async function settleWallet(userId, name, pending, btn) {
+async function settleWallet(userId, name, pending, btn, profile) {
   const expected = pending.reduce((t, p) => t + (p.amount || 0), 0);
   if (!confirm('Marquer ' + usd(expected) + ' comme payé à ' + name + ' ?')) return;
 
@@ -93,7 +113,7 @@ async function settleWallet(userId, name, pending, btn) {
     if (!data || !data.length) throw new Error('aucune ligne modifiée (déjà réglé, ou droits admin ?)');
     toast('Réglé : ' + usd(done) + ' pour ' + name);
     await refreshDashboard();
-    await openWallet(userId, name);
+    await openWallet(userId, name, profile);
   } catch (e) {
     console.error('Règlement :', e);
     toast('Échec : ' + ((e && e.message) || e));

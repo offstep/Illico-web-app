@@ -61,6 +61,7 @@ async function loadPayments() {
 }
 
 async function loadCounts() {
+  loadAvailability();   // sans attendre : n'empêche pas l'accueil de s'afficher
   const [workers, published, drafts] = await Promise.all([
     countRows('WorkerProfile', q => q.in('status', ['TRIAL', 'VERIFIED'])),
     countRows('Mission', q => q.eq('status', 'PUBLISHED')),
@@ -76,13 +77,33 @@ async function loadCounts() {
     drafts > 0 ? (drafts > 1 ? 'Prêtes à être publiées' : 'Prête à être publiée') : 'Tout est publié';
 }
 
+// Heures par jour déclarées à l'inscription (colonnes ajoutées par le bot : absentes tant qu'il n'est pas redéployé)
+async function loadAvailability() {
+  try {
+    const { data, error } = await window.sb.from('WorkerProfile').select('hoursPerDay').in('status', ['TRIAL', 'VERIFIED']);
+    if (error) throw error;
+    const hours = (data || []).map(r => r.hoursPerDay).filter(h => Number.isFinite(h) && h > 0);
+    pilot.declared = hours.length;
+    pilot.avgHours = hours.length ? hours.reduce((t, h) => t + h, 0) / hours.length : null;
+  } catch (e) {
+    pilot.declared = 0;
+    pilot.avgHours = null;
+  }
+}
+
 // ----- Workers (avec solde du portefeuille) -----
+const PROFILE_COLS = 'country, languages, level, hoursPerDay, utcOffsetMin';
+const LEVEL_LABEL = { N1: 'N1 Débutant', N2: 'N2 Intermédiaire', N3: 'N3 Avancé' };
+const LANG_LABEL = { fr: 'Français', en: 'Anglais', es: 'Espagnol', pt: 'Portugais', ar: 'Arabe', de: 'Allemand', it: 'Italien' };
 async function loadWorkers() {
-  const { data, error } = await window.sb
+  const query = cols => window.sb
     .from('WorkerProfile')
-    .select('id, userId, status, User(username, MissionWorker(count), Payment(amount, status))')
+    .select('id, userId, status, ' + cols + 'User(username, MissionWorker(count), Payment(amount, status))')
     .order('createdAt', { ascending: false })
     .limit(200);
+  // Si les colonnes du profil n'existent pas encore (bot pas redéployé), on charge sans elles
+  let { data, error } = await query(PROFILE_COLS + ', ');
+  if (error) ({ data, error } = await query(''));
   if (error) throw error;
 
   const list = document.getElementById('worker-list');
@@ -97,7 +118,7 @@ async function loadWorkers() {
     row.setAttribute('role', 'button');
     row.tabIndex = 0;
     const open = () => {
-      if (typeof openWallet === 'function') openWallet(w.userId, name);
+      if (typeof openWallet === 'function') openWallet(w.userId, name, w);
       else toast('Fichier wallet.js manquant sur le site.');
     };
     row.addEventListener('click', open);
@@ -108,6 +129,8 @@ async function loadWorkers() {
     const info = el('div', 'flex-1 min-w-0');
     info.appendChild(el('div', 'font-semibold text-sm truncate', name));
     info.appendChild(el('div', 'text-xs text-zinc-500', plural(missions, 'mission prise', 'missions prises') + (due > 0 ? ' · ' + usd(due) + ' à payer' : '')));
+    const tags = profileTags(w);
+    if (tags) info.appendChild(el('div', 'text-[11px] text-zinc-400 truncate', tags));
     row.appendChild(info);
 
     row.appendChild(badge(WORKER_STATUS, w.status));
@@ -121,6 +144,9 @@ async function loadWorkers() {
   const search = document.getElementById('worker-search');
   if (search && search.value) search.dispatchEvent(new Event('input'));
 }
+
+// « N2 · 3 h/j · Bénin » (vide si le worker n'a pas encore rempli son profil)
+const profileTags = w => [w.level, w.hoursPerDay ? w.hoursPerDay + ' h/j' : null, w.country].filter(Boolean).join(' · ');
 
 const sumDue = payments => payments.filter(p => p.status === 'PENDING').reduce((t, p) => t + (p.amount || 0), 0);
 

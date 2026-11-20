@@ -3,7 +3,8 @@
 // Fonctions pures : mêmes entrées = mêmes résultats, faciles à tester.
 // Hypothèses réglables stockées sur l'appareil (localStorage, facultatif).
 
-const pilot = { activeWorkers: null };   // rempli par data.js (workers en essai ou vérifiés)
+// rempli par data.js : workers en essai ou vérifiés, et heures/jour moyennes déclarées à l'inscription
+const pilot = { activeWorkers: null, avgHours: null, declared: 0 };
 
 const DEFAULT_SETTINGS = {
   minPerTask: 2,      // minutes par tâche

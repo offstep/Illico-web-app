@@ -53,7 +53,7 @@ function buildForecast() {
   const days = numField('Délai (jours)', 5, { step: '0.5' });
   const minPer = numField('Minutes par tâche', s.minPerTask, { step: '0.5' });
   const workers = numField('Workers', pilot.activeWorkers || 10);
-  const hpd = numField('Heures / jour / worker', s.hoursPerDay, { step: '0.5' });
+  const hpd = numField('Heures / jour / worker', pilot.avgHours ? Math.round(pilot.avgHours * 10) / 10 : s.hoursPerDay, { step: '0.5' });
   const eff = numField('Rendement', s.efficiency, { suffix: '%' });
   [volume, days, minPer, workers, hpd, eff].forEach(f => form.appendChild(f.wrap));
   root.appendChild(form);
@@ -63,15 +63,23 @@ function buildForecast() {
   const out = el('div', 'space-y-3');
   root.appendChild(out);
 
-  let workersTouched = false;
+  let workersTouched = false, hoursTouched = false;
   workers.input.addEventListener('input', () => { workersTouched = true; });
+  hpd.input.addEventListener('input', () => { hoursTouched = true; });
 
   function render() {
     // le nombre de workers actifs arrive après le chargement : on le reprend tant qu'on n'y a pas touché
     if (!workersTouched && pilot.activeWorkers && Number(workers.input.value) !== pilot.activeWorkers) {
       workers.input.value = pilot.activeWorkers;
     }
-    hint.textContent = pilot.activeWorkers != null ? 'Workers actifs en ce moment : ' + pilot.activeWorkers + ' (modifiable pour simuler un recrutement).' : '';
+    // les heures moyennes déclarées par les workers à l'inscription remplacent la valeur par défaut
+    if (!hoursTouched && pilot.avgHours) {
+      const avg = Math.round(pilot.avgHours * 10) / 10;
+      if (Number(hpd.input.value) !== avg) hpd.input.value = avg;
+    }
+    hint.textContent = pilot.activeWorkers != null
+      ? 'Workers actifs : ' + pilot.activeWorkers + (pilot.declared ? ' · disponibilité moyenne déclarée : ' + fmt(pilot.avgHours, 1) + ' h/jour (' + pilot.declared + ' profils)' : '') + '. Modifiable pour simuler.'
+      : '';
 
     const r = computeForecast({
       volume: readNum(volume.input), days: readNum(days.input), minPerTask: readNum(minPer.input),
