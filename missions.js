@@ -84,7 +84,7 @@ function readMissionForm() {
 async function saveMission(status) {
   const r = readMissionForm();
   if (r.error) return showMissionError(r.error);
-  if (status === 'PUBLISHED' && !confirm('Publier cette mission ?')) return;
+  if (status === 'PUBLISHED' && !(await confirmPublish(r.row))) return;
 
   missionError.classList.add('hidden');
   setMissionBusy(true);
@@ -116,15 +116,17 @@ function missionActions(m) {
   }
   const b = el('button', 'mt-3 w-full border border-zinc-200 rounded-full py-2 text-xs font-semibold active:scale-95 transition', label);
   b.type = 'button';
-  b.addEventListener('click', () => setMissionStatus(m.id, next, ask, done, b));
+  b.addEventListener('click', () => setMissionStatus(m, next, ask, done, b));
   return b;
 }
 
-async function setMissionStatus(id, status, ask, done, btn) {
-  if (!confirm(ask)) return;
+async function setMissionStatus(m, status, ask, done, btn) {
+  // Publier passe par le contrôle (contournable) ; clôturer demande une simple confirmation
+  const go = status === 'PUBLISHED' ? await confirmPublish(m) : confirm(ask);
+  if (!go) return;
   btn.disabled = true;
   try {
-    const { data, error } = await window.sb.from('Mission').update({ status }).eq('id', id).select('id');
+    const { data, error } = await window.sb.from('Mission').update({ status }).eq('id', m.id).select('id');
     if (error) throw error;
     // Une règle RLS qui refuse ne renvoie pas d'erreur : 0 ligne modifiée
     if (!data || !data.length) throw new Error('aucune ligne modifiée (droits admin ?)');

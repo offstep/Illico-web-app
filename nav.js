@@ -7,7 +7,6 @@ function showView(name) {
   views.forEach(v => v.classList.toggle('hidden', v.id !== 'view-' + name));
   navLinks.forEach(a => {
     const active = a.dataset.nav === name;
-    a.classList.toggle('text-blue-600', active);
     if (active) a.setAttribute('aria-current', 'page');
     else a.removeAttribute('aria-current');
   });

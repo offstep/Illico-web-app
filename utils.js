@@ -3,7 +3,7 @@
 // Tout le texte venant de la base passe par textContent : aucun HTML n'est injecté.
 
 // Numéro de version affiché dans Compte : sert à vérifier que les fichiers sont à jour
-const APP_VERSION = 'v5';
+const APP_VERSION = 'v6';
 {
   const v = document.getElementById('app-version');
   if (v) v.textContent = 'ILLICO Workforce · version bêta · ' + APP_VERSION;
@@ -11,6 +11,8 @@ const APP_VERSION = 'v5';
 
 // Montants : toujours en dollars, entiers (la base stocke des entiers)
 const usd = n => '$' + Number(n || 0).toLocaleString('en-US');
+// Avec centimes (calculs de rentabilité : la base, elle, ne stocke que des dollars entiers)
+const usd2 = n => '$' + Number(n || 0).toLocaleString('en-US', { maximumFractionDigits: 2 });
 const num5 = n => '#' + String(n).padStart(5, '0');
 const plural = (n, un, plus) => n + ' ' + (n > 1 ? plus : un);
 const shortDate = d => d ? new Date(d).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' }) : '';
@@ -53,7 +55,7 @@ let toastTimer;
 function toast(msg) {
   let t = document.getElementById('toast');
   if (!t) {
-    t = el('div', 'fixed top-4 inset-x-4 mx-auto max-w-sm z-[95] bg-black text-white text-xs font-medium rounded-full px-4 py-3 text-center shadow-lg');
+    t = el('div', 'fixed top-4 inset-x-4 mx-auto max-w-sm z-[120] bg-black text-white text-xs font-medium rounded-full px-4 py-3 text-center shadow-lg');
     t.id = 'toast';
     t.setAttribute('role', 'status');
     document.body.appendChild(t);

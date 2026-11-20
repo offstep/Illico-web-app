@@ -61,7 +61,7 @@ function buildReviewForm(deliveryId) {
 
   const preview = el('p', 'text-xs text-zinc-500');
   const status = el('p', 'hidden text-xs rounded-xl px-3 py-2');
-  const send = el('button', 'w-full bg-black text-white rounded-full py-3 text-sm font-semibold active:scale-95 transition', "Envoyer l'évaluation");
+  const send = el('button', 'w-full btn btn-primary btn-block', "Envoyer l'évaluation");
   send.type = 'button';
   form.appendChild(preview);
   form.appendChild(status);

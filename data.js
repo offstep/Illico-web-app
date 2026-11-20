@@ -66,6 +66,7 @@ async function loadCounts() {
     countRows('Mission', q => q.eq('status', 'PUBLISHED')),
     countRows('Mission', q => q.eq('status', 'DRAFT'))
   ]);
+  pilot.activeWorkers = workers;   // sert à la Prévision et au contrôle avant publication
   document.getElementById('stat-workers').textContent = workers;
   document.getElementById('stat-missions').textContent = published;
 
@@ -92,7 +93,7 @@ async function loadWorkers() {
     const missions = (w.User && w.User.MissionWorker && w.User.MissionWorker[0] && w.User.MissionWorker[0].count) || 0;
     const due = sumDue((w.User && w.User.Payment) || []);
 
-    const row = el('div', 'worker-item bg-white border border-zinc-200 rounded-2xl p-4 flex items-center gap-3 shadow-sm cursor-pointer active:scale-[0.99] transition');
+    const row = el('div', 'worker-item card tap p-4 flex items-center gap-3');
     row.setAttribute('role', 'button');
     row.tabIndex = 0;
     const open = () => {
@@ -102,7 +103,7 @@ async function loadWorkers() {
     row.addEventListener('click', open);
     row.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); } });
 
-    row.appendChild(el('div', 'w-11 h-11 rounded-full bg-black text-white flex items-center justify-center font-bold text-sm', name.slice(0, 2).toUpperCase()));
+    row.appendChild(el('div', 'w-11 h-11 rounded-full bg-gradient-to-br from-zinc-700 to-black text-white flex items-center justify-center font-bold text-sm shrink-0', name.slice(0, 2).toUpperCase()));
 
     const info = el('div', 'flex-1 min-w-0');
     info.appendChild(el('div', 'font-semibold text-sm truncate', name));
@@ -127,7 +128,7 @@ const sumDue = payments => payments.filter(p => p.status === 'PENDING').reduce((
 async function loadMissions() {
   const { data, error } = await window.sb
     .from('Mission')
-    .select('id, number, title, type, status, reward, maxWorkers, MissionWorker(count)')
+    .select('id, number, title, type, status, reward, maxWorkers, taskCount, deadlineHours, MissionWorker(count)')
     .order('createdAt', { ascending: false })
     .limit(200);
   if (error) throw error;
@@ -138,7 +139,7 @@ async function loadMissions() {
   (data || []).forEach(m => {
     const taken = (m.MissionWorker && m.MissionWorker[0] && m.MissionWorker[0].count) || 0;
 
-    const card = el('div', 'mission-item bg-white border border-zinc-200 rounded-2xl p-4 shadow-sm');
+    const card = el('div', 'mission-item card p-4');
     card.dataset.status = m.status;
 
     const top = el('div', 'flex items-start justify-between gap-3');
@@ -159,6 +160,14 @@ async function loadMissions() {
     meta.appendChild(w);
     meta.appendChild(r);
     card.appendChild(meta);
+    if (m.maxWorkers) {
+      const bar = el('div', 'bar mt-2.5');
+      const fill = el('span');
+      fill.style.width = Math.min(100, taken / m.maxWorkers * 100) + '%';
+      fill.style.background = '#0a0a0b';
+      bar.appendChild(fill);
+      card.appendChild(bar);
+    }
 
     // « Publier » / « Clôturer » (missions.js) : absent = pas de bouton, mais pas d'erreur
     const actions = typeof missionActions === 'function' ? missionActions(m) : null;
@@ -219,8 +228,8 @@ async function loadDeliveries() {
     card.addEventListener('click', () => openDelivery(d.id));
     card.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openDelivery(d.id); } });
 
-    const ic = el('div', 'w-11 h-11 rounded-xl bg-zinc-100 flex items-center justify-center shrink-0');
-    ic.appendChild(icon('file-check', 'w-5 h-5 text-zinc-500'));
+    const ic = el('div', 'chip-icon');
+    ic.appendChild(icon('file-check', 'w-5 h-5'));
     card.appendChild(ic);
 
     const info = el('div', 'flex-1 min-w-0');
@@ -352,6 +361,7 @@ async function loadDashboardData() {
       ['Accueil', loadCounts], ['Paiements', loadPayments], ['Workers', loadWorkers],
       ['Missions', loadMissions], ['QA', loadDeliveries]
     ];
+    if (typeof loadPerformance === 'function') sections.push(['Performance', loadPerformance]);
     const results = await Promise.allSettled(sections.map(([, load]) => load()));
     const failed = [];
     results.forEach((r, k) => {

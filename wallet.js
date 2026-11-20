@@ -52,7 +52,7 @@ function renderWallet(body, userId, name, rows) {
 
   const pending = rows.filter(p => p.status === 'PENDING');
   if (pending.length) {
-    const btn = el('button', 'w-full bg-black text-white rounded-full py-3 text-sm font-semibold active:scale-95 transition', 'Marquer ' + usd(due) + ' comme payé');
+    const btn = el('button', 'w-full btn btn-primary btn-block', 'Marquer ' + usd(due) + ' comme payé');
     btn.type = 'button';
     btn.addEventListener('click', () => settleWallet(userId, name, pending, btn));
     body.appendChild(btn);
