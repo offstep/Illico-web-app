@@ -29,7 +29,9 @@
   <!-- PWA -->
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#000000">
-  <link rel="icon" type="image/png" href="icon-192.png">
+  <link rel="icon" href="favicon.ico" sizes="48x48">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png">
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -125,6 +127,16 @@
           </div>
         </div>
       </div>
+
+      <!-- Raccourci Centre de contrôle -->
+      <a href="#" data-nav="control" class="card tap p-4 flex items-center gap-3">
+        <div class="chip-icon dark"><i data-lucide="radar" class="w-5 h-5"></i></div>
+        <div class="flex-1 min-w-0">
+          <div class="font-semibold text-sm flex items-center gap-2">Centre de contrôle <span id="cc-dot" class="w-2 h-2 rounded-full bg-zinc-300"></span></div>
+          <div id="cc-home-sub" class="text-xs text-zinc-500">Santé, alertes et actions rapides</div>
+        </div>
+        <i data-lucide="chevron-right" class="w-4 h-4 text-zinc-300"></i>
+      </a>
 
       <!-- Raccourci Pilotage -->
       <a href="#" data-nav="pilot" class="card tap p-4 flex items-center gap-3">
@@ -255,6 +267,18 @@
       <div id="pilot-forecast"></div>
       <div id="pilot-calc" class="hidden"></div>
       <div id="pilot-perf" class="hidden space-y-4"><div class="skeleton"></div><div class="skeleton"></div></div>
+    </section>
+
+    <!-- ===================== CENTRE DE CONTRÔLE ===================== -->
+    <section id="view-control" class="view hidden space-y-4">
+      <div class="card card-hero p-4 flex items-center gap-3">
+        <div class="chip-icon dark"><i data-lucide="radar" class="w-5 h-5"></i></div>
+        <div class="flex-1 min-w-0">
+          <h2 class="text-lg font-bold tracking-tight">Centre de contrôle</h2>
+          <p id="cc-sub" class="text-xs text-zinc-500">Tout ce qui demande ton attention</p>
+        </div>
+      </div>
+      <div id="cc-root" class="space-y-4"><div class="skeleton"></div><div class="skeleton"></div></div>
     </section>
 
     <!-- ===================== COMPTE ===================== -->
@@ -418,6 +442,8 @@
   <script src="forecast.js"></script>
   <script src="preflight.js"></script>
   <script src="pilot.js"></script>
+  <script src="lock.js"></script>
+  <script src="control.js"></script>
   <script src="data.js"></script>
   <script src="nav.js"></script>
   <script src="pwa.js"></script>

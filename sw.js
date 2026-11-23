@@ -1,6 +1,6 @@
 // Service worker ILLICO
 // Changer ce numéro force la mise à jour du cache chez tous les utilisateurs.
-const CACHE = 'illico-v6';
+const CACHE = 'illico-v7';
 
 // Fichiers de l'app (même dossier que ce fichier)
 const SHELL = [
@@ -19,12 +19,16 @@ const SHELL = [
   'forecast.js',
   'preflight.js',
   'pilot.js',
+  'control.js',
+  'lock.js',
   'data.js',
   'nav.js',
   'pwa.js',
   'manifest.json',
   'icon-192.png',
-  'icon-512.png'
+  'icon-512.png',
+  'favicon.ico',
+  'favicon-32.png'
 ];
 
 // Librairies externes qu'on garde pour que l'écran ne soit pas cassé hors-ligne

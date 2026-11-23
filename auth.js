@@ -13,6 +13,8 @@ async function loginWithGoogle() {
 
 // Se déconnecter
 async function logout() {
+  // Oublie le déverrouillage de cette session avant de se déconnecter
+  if (typeof lockRelease === 'function') await lockRelease();
   await window.sb.auth.signOut();
   window.location.reload();
 }
@@ -47,10 +49,18 @@ function render(session) {
       const n = document.getElementById('notice');
       if (n) { n.textContent = msg; n.classList.remove('hidden'); }
     };
-    if (typeof loadDashboardData === 'function') {
-      Promise.resolve(loadDashboardData()).catch(err => warn('Chargement impossible : ' + ((err && err.message) || err)));
+    const start = () => {
+      if (typeof loadDashboardData === 'function') {
+        Promise.resolve(loadDashboardData()).catch(err => warn('Chargement impossible : ' + ((err && err.message) || err)));
+      } else {
+        warn("Le fichier data.js n'est pas chargé : vérifie qu'il est à la racine du site.");
+      }
+    };
+    // Deuxième et troisième couches (mot de passe + PIN / biométrie) : lock.js, facultatif
+    if (typeof ensureUnlocked === 'function') {
+      ensureUnlocked().then(start).catch(err => warn('Verrouillage : ' + ((err && err.message) || err)));
     } else {
-      warn("Le fichier data.js n'est pas chargé : vérifie qu'il est à la racine du site.");
+      start();
     }
   } else {
     if (loginScreen) loginScreen.style.display = 'flex';

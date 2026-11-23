@@ -370,6 +370,8 @@ async function openDelivery(id) {
 
 // ----- Point d'entrée (appelé par auth.js) -----
 async function loadDashboardData() {
+  // Écran de verrouillage affiché : la base refuserait de répondre, on n'insiste pas
+  if (typeof lockIsLocked === 'function' && lockIsLocked()) return;
   // auth.js peut l'appeler plusieurs fois de suite : on évite les doublons
   if (Date.now() - lastLoad < 3000) return;
   lastLoad = Date.now();
@@ -388,6 +390,7 @@ async function loadDashboardData() {
       ['Missions', loadMissions], ['QA', loadDeliveries]
     ];
     if (typeof loadPerformance === 'function') sections.push(['Performance', loadPerformance]);
+    if (typeof loadControl === 'function') sections.push(['Contrôle', loadControl]);
     const results = await Promise.allSettled(sections.map(([, load]) => load()));
     const failed = [];
     results.forEach((r, k) => {
